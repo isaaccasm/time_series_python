@@ -205,6 +205,3 @@ def generate_SARIMA(arparams=[], maparams=[], sarparams=[], smaparams=[], d=0, s
     #maparams = [a for a in maparams[1:]]
 
     return _generate_ARMA_plot(arparams=arparams, maparams=maparams, n=n, show=show)
-
-if __name__ == '__main__':
-    generate_ARIMA(arparams=[0.7], maparams=[0.2], d=1, show=True)
