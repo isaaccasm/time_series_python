@@ -75,9 +75,9 @@ def generate_AR(weights=(0.7,0.2), number_samples=int(1e4), noise=None, show=Fal
         axs[0].plot(AR_p)
         axs[0].set_title('An auto-regressive process of order {} with weights {}'.format(len(weights), weights))
 
-        acf_MA = acf(AR_p)
+        acf_MA = pacf(AR_p)
         axs[1].stem(acf_MA)
-        axs[1].set_title('Correlogram of an auto-regressive process of order {}'.format(len(weights)))
+        axs[1].set_title('Partial Correlogram of an auto-regressive process of order {}'.format(len(weights)))
         plt.show()
 
     return AR_p
@@ -96,14 +96,15 @@ def _generate_ARMA_plot(arparams=[1.0, -0.7], maparams=[1.0, 0.2], n=int(1e4), s
     y = arma_generate_sample(np.array(arparams), np.array(maparams), n)
 
     if show:
-        r = acf(y)
-        pr = pacf(y)
+        if not np.any(np.isnan(y)):
+            r = acf(y)
+            pr = pacf(y)
 
-        fig, ax = plt.subplots(3, 1)
-        ax[0].plot(y, label="Data")
-        ax[1].stem(r, label="ACF")
-        ax[2].stem(pr, label="PACF")
-        plt.show()
+            fig, ax = plt.subplots(3, 1)
+            ax[0].plot(y, label="Data")
+            ax[1].stem(r, label="ACF")
+            ax[2].stem(pr, label="PACF")
+            plt.show()
 
     return y
 
@@ -130,7 +131,13 @@ def _extend_parameters(params, extension, s=1):
     """
     if isinstance(extension, (int, float)):
         num_extensions = extension
-        extension = [1] + [-1 for _ in range(0,num_extensions*s,s)]
+        extension = []
+        if num_extensions > 0:
+            aux_ext = [1] + [0 for _ in range(s - 1)] + [-1]
+            for i in range(num_extensions - 1):
+                extension = [aux_ext + [0]]
+                extension.append([0] + [-a for a in aux_ext])
+                aux_ext = np.sum(extension, axis=0).tolist()
 
     if len(params) == 0:
         return extension
@@ -198,3 +205,6 @@ def generate_SARIMA(arparams=[], maparams=[], sarparams=[], smaparams=[], d=0, s
     #maparams = [a for a in maparams[1:]]
 
     return _generate_ARMA_plot(arparams=arparams, maparams=maparams, n=n, show=show)
+
+if __name__ == '__main__':
+    generate_ARIMA(arparams=[0.7], maparams=[0.2], d=1, show=True)
