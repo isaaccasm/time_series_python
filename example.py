@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from fitting_functions import fit_model, fit_trend_moving_average, fit_trend_splines
 from simulators import generate_ARIMA
+from test_results import test_forecast_SARIMA
 from visualisation import plot_analysis_ARIMA_results, plot_ARIMA_corr_coeff
 
 def example_visualisation_plot_ARIMA_corr_coeff():
@@ -62,4 +63,13 @@ def example_remove_trend_moving_average():
 
     plot_analysis_ARIMA_results(model)
 
-example_remove_trend_moving_average()
+def example_test_test_forecast_SARIMA():
+    data = generate_ARIMA(arparams=[0.7, 0.1], maparams=[0.2], d=1, show=False, n=110)
+    df = pd.DataFrame({'time': list(range(len(data))), 'value': data})
+
+    orders = [(1,0,1), (1,1,1), (2,0,1), (1,1,2), (3,0,1), (2,1,1)]
+    res_model, model = fit_model(data[:100], orders, 'aic', show=1, return_untrained_model=True)
+
+    test_forecast_SARIMA(model, df)
+
+example_test_test_forecast_SARIMA()
