@@ -135,8 +135,8 @@ def _extend_parameters(params, extension, s=1):
         if num_extensions > 0:
             aux_ext = [1] + [0 for _ in range(s - 1)] + [-1]
             for i in range(num_extensions - 1):
-                extension = [aux_ext + [0]]
-                extension.append([0] + [-a for a in aux_ext])
+                extension = [aux_ext + [0]*s]
+                extension.append([0]*s + [-a for a in aux_ext])
                 aux_ext = np.sum(extension, axis=0).tolist()
 
     if len(params) == 0:
