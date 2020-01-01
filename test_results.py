@@ -38,13 +38,13 @@ def test_forecast_SARIMA(model, data, column='value', init=10):
         model_fit = new_model.fit(disp=0)
         output = model_fit.forecast()  # Only next samples. model.predict(fittedValues, start=length-init,end=length-1)
         yhat = output[0]
-        bound = 1.96 * np.std(model_fit.res)
+        bound = 1.96 * np.std(model_fit.resid)
         data['predictions'].iloc[-init + t] = yhat
         data['lowerBound'].iloc[-init + t] = yhat - bound
         data['upperBound'].iloc[-init + t] = yhat + bound
         obs = test.iloc[t]
         # history.append(obs)
-        print('predicted=%f, expected=%f' % (yhat, obs))
+        print('predicted=%f, expected=%f' % (yhat, obs['value']))
 
     data[[column, 'predictions']].plot()
     plt.plot(data['upperBound'], 'k')
