@@ -31,7 +31,7 @@ def fit_model(data, orders, metric, s=None, min_p=0.01, return_untrained_model=F
         kwargs['disp'] = -1
     if 'start_params' in kwargs:
         if hasattr(kwargs['start_params'], '__len__'):
-            if not hasattr(kwargs['start_params'], '__len__'):
+            if hasattr(kwargs['start_params'], '__len__'):
                 start_params = kwargs['start_params']
 
     values = []
@@ -70,20 +70,24 @@ def fit_model(data, orders, metric, s=None, min_p=0.01, return_untrained_model=F
                 print(repr(err))
             values.append(1e20)
 
+    selected_order = np.argmin(values)
+    if start_params:
+        kwargs['start_params'] = start_params[selected_order]
+
     if show > 0:
-        print('Selected order: {}'.format(orders[np.argmin(values)]))
+        print('Selected order: {}'.format(orders[selected_order]))
 
     if s is None:
         if not return_untrained_model:
-            return ARIMA(data, order=orders[np.argmin(values)]).fit(disp=-1)
+            return ARIMA(data, order=orders[selected_order]).fit(**kwargs)
         else:
-            return ARIMA(data, order=orders[np.argmin(values)]).fit(disp=-1), lambda data: ARIMA(data, order=orders[np.argmin(values)])
+            return ARIMA(data, order=orders[selected_order]).fit(**kwargs), lambda data: ARIMA(data, order=orders[np.argmin(values)])
     else:
-        order = orders[np.argmin(values)]
+        order = orders[selected_order]
         if not return_untrained_model:
-            return SARIMAX(data, order=order[:3], seasonal_order=order[3:] + [s]).fit(disp=-1)
+            return SARIMAX(data, order=order[:3], seasonal_order=order[3:] + [s]).fit(**kwargs)
         else:
-            return SARIMAX(data, order=order[:3], seasonal_order=order[3:] + [s]).fit(disp=-1), lambda data: SARIMAX(data, order=order[:3], seasonal_order=order[3:] + [s])
+            return SARIMAX(data, order=order[:3], seasonal_order=order[3:] + [s]).fit(**kwargs), lambda data: SARIMAX(data, order=order[:3], seasonal_order=order[3:] + [s])
 
 
 def fit_trend_splines(data, nsegs=2):
@@ -119,6 +123,7 @@ def fit_trend_moving_average(data, length=5):
     :return: A numpy array with the same length as the data and the values of the trend.
     """
     n = length // 2
+    length = 2*n + 1 #The number should be odd, otherwise the average is between points and not the mean of one point
     average = np.convolve(data, np.ones((length,)) / length, mode='valid')
     init = _extrapolate_signals(average[1], average[0], num_samples=n)
     end =  _extrapolate_signals(average[-2], average[-1], num_samples=n)
