@@ -41,14 +41,14 @@ def example_remove_trend_spline():
     plot_analysis_ARIMA_results(model)
 
 def example_remove_trend_moving_average():
-    data = generate_ARIMA(arparams=[0.7, -0.1], maparams=[-0.8], d=1, show=False)
+    data = generate_ARIMA(arparams=[0.7, -0.1], maparams=[-0.8], d=1, show=False, n=2000)
     #Add trend
     trend = 0.05 * np.arange(len(data))
     trend[:len(trend)//2] = trend[:len(trend)//2] * 0.2
     data += trend
 
     #detect trend
-    estimated_trend = fit_trend_moving_average(data, len(data)//500)
+    estimated_trend = fit_trend_moving_average(data, 100)
 
     plt.plot(estimated_trend, 'b')
     plt.plot(trend, 'r')
