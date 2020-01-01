@@ -85,7 +85,7 @@ def plot_analysis_ARIMA_results(model, *args, **kwargs):
     :param model: The statmodel model
     :return:
     """
-    res = model.resid.iloc[1:]  # residuals
+    res = model.resid#.iloc[1:]  # residuals
     pr = pacf(res)
     r = acf(res)
 
@@ -103,11 +103,3 @@ def plot_analysis_ARIMA_results(model, *args, **kwargs):
     axs[1][1].set_title('Q-Q plot')
 
     plt.show()
-
-if __name__ == '__main__':
-    import pandas as pd
-    from Simulators import generate_ARIMA
-    data = generate_ARIMA(arparams=[0.7], maparams=[0.2], d=1, show=False)
-
-    df = pd.DataFrame({'time':list(range(len(data))), 'value':data})
-    plot_ARIMA_corr_coeff(df, s=1, log=False, der=2)
